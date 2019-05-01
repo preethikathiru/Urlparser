@@ -32,17 +32,19 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
+
+
 app.post("/parseurlold", (req, res) => {
     var websiteurl = req.body.WEBSITE;
     request(websiteurl, function (error, response, body) {
         var emails = extractEmails(body)
-        console.log('Email variable', emails)
+        console.log('Email variable', emails);
         let uniqueEmails = [...new Set(emails)];
         var websiteJson = { url: websiteurl, emails: uniqueEmails }
         console.log(uniqueEmails, 'unique array')
         var parseddetails = new websitedetails(websiteJson);
         parseddetails.save()
-            .then(website => {
+            .then(function (website) {
                 console.log(website)
                 res.send({
                     message: "website details stored successfully",
@@ -53,7 +55,6 @@ app.post("/parseurlold", (req, res) => {
                 console.log(err)
                 res.status(400).send("unable to save in database");
             })
-
     })
 });
 
