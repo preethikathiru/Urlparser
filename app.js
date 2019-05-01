@@ -4,7 +4,7 @@ var cheerio = require("cheerio");
 var bodyParser = require('body-parser');
 var mongoose = require("mongoose");
 var app = express();
-var port = 3000;
+var port = 8000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -60,6 +60,6 @@ app.post("/parseurl", (req, res) => {
     })
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT || port, () => {
     console.log("Server listening on port " + port);
 });
