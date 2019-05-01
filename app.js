@@ -1,13 +1,14 @@
 var express = require("express");
-var app = express();
-var port = 3000;
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 const request = require('request');
 var cheerio = require("cheerio");
-
+var bodyParser = require('body-parser');
 var mongoose = require("mongoose");
+var app = express();
+var port = 3000;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://node_demo:node_demo123@ds151222.mlab.com:51222/myfirstdb")
     .then((data) => {
@@ -26,7 +27,7 @@ var websiteSchema = new mongoose.Schema({
     emails: [String],
 })
 
-var websitedetails = mongoose.model("website", websiteSchema);
+var WebsiteModel = mongoose.model("website", websiteSchema);
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
@@ -41,11 +42,9 @@ app.post("/parseurl", (req, res) => {
             var link =  $(this).attr('href');
             return  link;
         }).get();
-        console.log('Email variable', emails);
         let uniqueEmails = [...new Set(emails)];
         var websiteJson = { url: websiteurl, emails: uniqueEmails, links : linkHrefs }
-        console.log(uniqueEmails, 'unique array')
-        var parseddetails = new websitedetails(websiteJson);
+        var parseddetails = new WebsiteModel(websiteJson);
         parseddetails.save()
             .then(function (website) {
                 console.log(website)
