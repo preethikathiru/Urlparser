@@ -21,9 +21,9 @@ var extractEmails = function (text) {
 }
 
 var websiteSchema = new mongoose.Schema({
-    url : String,
-    links : [String],
-    emails : [String],
+    url: String,
+    links: [String],
+    emails: [String],
 })
 
 var websitedetails = mongoose.model("website", websiteSchema);
@@ -38,18 +38,22 @@ app.post("/parseurlold", (req, res) => {
         var emails = extractEmails(body)
         console.log('Email variable', emails)
         let uniqueEmails = [...new Set(emails)];
-        var websiteJson = {url : websiteurl , emails : uniqueEmails }
+        var websiteJson = { url: websiteurl, emails: uniqueEmails }
         console.log(uniqueEmails, 'unique array')
         var parseddetails = new websitedetails(websiteJson);
         parseddetails.save()
-            .then(item => {
-                console.log(item)
+            .then(website => {
+                console.log(website)
+                res.send({
+                    message: "website details stored successfully",
+                    website: website
+                });
             })
             .catch(err => {
                 console.log(err)
                 res.status(400).send("unable to save in database");
             })
-        res.send('The emails are stored succcessfully');
+
     })
 });
 
