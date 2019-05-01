@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <style>
-input[type=text], select {
+input[type=url], select {
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -32,14 +32,14 @@ div {
   padding: 20px;
 }
 </style>
-<body>
+<body>  
 
 <div>
   <form method="post" action="/parseurl">
     <label>Enter the website here</label><br>
-   <input type="text" id="links" name="WEBSITE" align="middle" placeholder="Enter url here..." required>
+   <input type="url"  pattern="https://.*" style='width:auto' id="links" name="WEBSITE" align="middle" placeholder="Enter url here..." required>
     </select>
-    <input type="submit" value="Find">
+    <input type="submit" style='width:auto' value="Find">
   </form>
 </div>
  
