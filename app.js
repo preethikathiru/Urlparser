@@ -22,7 +22,11 @@ var extractEmails = function (text) {
     return extractedEmails;
 }
 var websiteSchema = new mongoose.Schema({
-    url: String,
+    url: {
+        type: String,
+        index: true,
+        unique: true
+    },
     links: [String],
     emails: [String],
 })
@@ -38,25 +42,36 @@ app.post("/parseurl", (req, res) => {
     request(websiteurl, function (error, response, body) {
         var emails = extractEmails(body);
         var $ = cheerio.load(body);
-        var linkHrefs = $('link').map(function(i) {
-            var link =  $(this).attr('href');
-            return  link;
+        var linkHrefs = $('link').map(function (i) {
+            var link = $(this).attr('href');
+            return link;
         }).get();
         let uniqueEmails = [...new Set(emails)];
-        var websiteJson = { url: websiteurl, emails: uniqueEmails, links : linkHrefs }
-        var parseddetails = new WebsiteModel(websiteJson);
-        parseddetails.save()
-            .then(function (website) {
-                console.log(website)
-                res.send({
-                    message: "website details stored successfully",
-                    website: website
-                });
-            })
-            .catch(err => {
-                console.log(err)
-                res.status(400).send("unable to save in database");
-            })
+        var websiteJson = { url: websiteurl, emails: uniqueEmails, links: linkHrefs }
+        WebsiteModel.findOne({ url: websiteurl }).then(function (website) {
+            var websiteModelObject = new WebsiteModel(websiteJson);
+            if(website) {
+                website.emails = uniqueEmails;
+                website.links = linkHrefs;
+                websiteModelObject = website;
+            }
+            websiteModelObject.save()
+                .then(function (website) {
+                    console.log(website)
+                    res.send({
+                        message: "Website details stored successfully",
+                        website: website
+                    });
+                })
+                .catch(err => {
+                    console.log(err)
+                    res.status(400).send("Error saving to database");
+                })
+        }).catch(err => {
+            console.log(err)
+            res.status(400).send("Error finding the website url");
+        })
+
     })
 });
 
