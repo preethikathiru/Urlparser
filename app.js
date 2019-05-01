@@ -17,9 +17,9 @@ mongoose.connect("mongodb://node_demo:node_demo123@ds151222.mlab.com:51222/myfir
     })
 
 var extractEmails = function (text) {
-    return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+    var extractedEmails = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+    return extractedEmails;
 }
-
 var websiteSchema = new mongoose.Schema({
     url: String,
     links: [String],
@@ -32,15 +32,18 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
-
-
-app.post("/parseurlold", (req, res) => {
+app.post("/parseurl", (req, res) => {
     var websiteurl = req.body.WEBSITE;
     request(websiteurl, function (error, response, body) {
-        var emails = extractEmails(body)
+        var emails = extractEmails(body);
+        var $ = cheerio.load(body);
+        var linkHrefs = $('link').map(function(i) {
+            var link =  $(this).attr('href');
+            return  link;
+        }).get();
         console.log('Email variable', emails);
         let uniqueEmails = [...new Set(emails)];
-        var websiteJson = { url: websiteurl, emails: uniqueEmails }
+        var websiteJson = { url: websiteurl, emails: uniqueEmails, links : linkHrefs }
         console.log(uniqueEmails, 'unique array')
         var parseddetails = new websitedetails(websiteJson);
         parseddetails.save()
